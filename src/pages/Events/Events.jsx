@@ -1,23 +1,43 @@
-/* eslint-disable no-unused-vars */
-import { useState } from 'react'
+//src/pages/Events/Events.jsx
+
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../../components/common/PageHeader'
 import Card from '../../components/ui/Card'
 import SearchBar from '../../components/common/SearchBar'
-import { mockData } from '../../data/mockData'
+import { supabase } from '../../services/supabaseClient'
 
 function Events() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const categories = ['all', 'meeting', 'health', 'agriculture', 'education', 'development']
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('is_published', true)
+          .order('date', { ascending: false })
 
-  const filteredEvents = mockData.events.filter(event => {
+        if (error) throw error
+        setEvents(data || [])
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
+
+  const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || 
-                          event.category.toLowerCase() === selectedCategory
-    return matchesSearch && matchesCategory
+                         event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         event.subtitle?.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesSearch
   })
 
   const breadcrumbs = [
@@ -36,31 +56,12 @@ function Events() {
       />
       
       <div className="container py-12">
-        {/* Search and Filter */}
-        <div className="mb-8">
-          <div className="grid md:grid-cols-2 gap-6 items-end">
-            <SearchBar 
-              onSearch={setSearchQuery}
-              placeholder="Search events..."
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filter by Category
-              </label>
-              <select 
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-              >
-                <option value="all">All Categories</option>
-                <option value="meeting">Meetings</option>
-                <option value="health">Health Programs</option>
-                <option value="agriculture">Agriculture</option>
-                <option value="education">Education</option>
-                <option value="development">Development</option>
-              </select>
-            </div>
-          </div>
+        {/* Search */}
+        <div className="mb-8 flex justify-center">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search events..."
+          />
         </div>
 
         {/* Upcoming Events */}
@@ -71,19 +72,23 @@ function Events() {
               {upcomingEvents.map((event) => (
                 <Card key={event.id} hover>
                   <div className="p-6">
+                    {event.image_url && (
+                      <img src={event.image_url} alt={event.title} className="w-full h-48 object-cover rounded-md mb-4" />
+                    )}
                     <div className="flex items-start justify-between mb-3">
                       <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full capitalize">
-                        {event.category}
+                        {event.category || 'Event'}
                       </span>
                       <div className="text-right text-sm">
                         <div className="font-medium text-primary">{event.date}</div>
                         <div className="text-gray-500">{event.time}</div>
                       </div>
                     </div>
-                    
+
                     <h3 className="text-lg font-semibold mb-2">{event.title}</h3>
+                    {event.subtitle && <h4 className="text-md text-gray-700 mb-2">{event.subtitle}</h4>}
                     <p className="text-gray-600 text-sm mb-3">{event.description}</p>
-                    
+
                     {event.venue && (
                       <div className="flex items-center text-sm text-gray-500 mb-4">
                         <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -92,8 +97,8 @@ function Events() {
                         {event.venue}
                       </div>
                     )}
-                    
-                    <Link 
+
+                    <Link
                       to={`/events/${event.id}`}
                       className="inline-flex items-center text-primary hover:text-primary-dark font-medium"
                     >
@@ -117,19 +122,23 @@ function Events() {
               {pastEvents.map((event) => (
                 <Card key={event.id} hover className="opacity-75">
                   <div className="p-6">
+                    {event.image_url && (
+                      <img src={event.image_url} alt={event.title} className="w-full h-48 object-cover rounded-md mb-4 opacity-75" />
+                    )}
                     <div className="flex items-start justify-between mb-3">
                       <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full capitalize">
-                        {event.category}
+                        {event.category || 'Event'}
                       </span>
                       <div className="text-right text-sm">
                         <div className="font-medium text-gray-500">{event.date}</div>
                         <div className="text-gray-400">{event.time}</div>
                       </div>
                     </div>
-                    
+
                     <h3 className="text-lg font-semibold mb-2 text-gray-700">{event.title}</h3>
+                    {event.subtitle && <h4 className="text-md text-gray-600 mb-2">{event.subtitle}</h4>}
                     <p className="text-gray-500 text-sm mb-3">{event.description}</p>
-                    
+
                     {event.venue && (
                       <div className="flex items-center text-sm text-gray-400 mb-4">
                         <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -138,8 +147,8 @@ function Events() {
                         {event.venue}
                       </div>
                     )}
-                    
-                    <Link 
+
+                    <Link
                       to={`/events/${event.id}`}
                       className="inline-flex items-center text-gray-500 hover:text-primary font-medium"
                     >
@@ -155,12 +164,20 @@ function Events() {
           </div>
         )}
 
+        {/* Loading */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-6xl mb-4">⏳</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Loading events...</h3>
+          </div>
+        )}
+
         {/* No Events */}
-        {filteredEvents.length === 0 && (
+        {!loading && filteredEvents.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">📅</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-            <p className="text-gray-600">Try adjusting your search criteria or category filter.</p>
+            <p className="text-gray-600">Try adjusting your search criteria.</p>
           </div>
         )}
       </div>

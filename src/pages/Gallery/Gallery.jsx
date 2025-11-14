@@ -1,5 +1,8 @@
+// frontend/src/pages/Gallery/Gallery.jsx
+
 import React, { useState, useEffect, useCallback, useMemo, memo, Suspense } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../../services/supabaseClient";
 
 // ---------------------- Memoized Header ----------------------
 const PageHeader = memo(({ title, subtitle, breadcrumbs }) => (
@@ -39,86 +42,34 @@ const Gallery = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [villageImages, setVillageImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const breadcrumbs = useMemo(() => [{ label: "Gallery", href: null }], []);
 
-  // Memoized image list
-  const villageImages = useMemo(
-    () => [
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762320768/04_5_11zon_lhdrkk.webp"},
+  // Fetch photos from Supabase
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('photos')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332675/02_z9udzo.webp"},
+        if (error) throw error;
 
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332675/13_m3anqr.webp"},
+        setVillageImages(data || []);
+      } catch (err) {
+        console.error('Error fetching photos:', err);
+        setError('Failed to load gallery images');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332675/03_hqflm6.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332675/01_zau7oh.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332675/12_xw93xg.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332676/05_gplssr.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332676/04_krdbpy.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332677/07_awxmwl.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332677/06_tuulsc.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332677/15_jrvkcm.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332677/14_bc2zj7.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332677/09_mtxr9l.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332679/19_q3hpek.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332678/17_wkx71y.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332679/20_dqrpii.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332678/16_i5aeyi.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332678/10_zfr5nt.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332679/18_tqgtqu.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332678/11_wlpml8.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332678/08_c4q5vw.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332680/22_tkkj7z.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332682/29_pk6xrn.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332680/24_x9oi52.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332682/27_acvhaz.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332682/28_dlxbkk.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332680/25_izujew.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332680/26_suvwpn.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332680/21_uwdnh3.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332680/23_uedzev.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332694/32_pr9mxw.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332693/30_zv1qsc.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332694/34_qj3oie.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332695/35_bccars.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332695/31_snaxjh.webp"},
-
-      { src: "https://res.cloudinary.com/dhgwquxar/image/upload/v1762332695/33_vepsnv.webp"},
-    ],
-    []
-  );
+    fetchPhotos();
+  }, []);
 
   // Lazy animation trigger
   useEffect(() => {
@@ -194,32 +145,40 @@ const Gallery = () => {
       {/* Gallery Grid */}
       <section className="bg-white py-12 px-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {villageImages.map((image, index) => {
-              const delay = index * 90;
-              return (
-                <div
-                  key={index}
-                  className={`group cursor-pointer overflow-hidden rounded-lg shadow-lg relative transition-all duration-300 ease-in-out hover:shadow-2xl hover-bounce ${
-                    mounted ? "entry-bounce" : "opacity-0 translate-y-2"
-                  }`}
-                  onClick={() => openModal(index)}
-                  style={{ animationDelay: `${delay}ms` }}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    loading="lazy" // Lazy load optimization
-                    decoding="async"
-                    className="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                   
+          {loading ? (
+            <div className="text-center py-10 text-gray-600">Loading gallery...</div>
+          ) : error ? (
+            <div className="text-center py-10 text-red-600">{error}</div>
+          ) : villageImages.length === 0 ? (
+            <div className="text-center py-10 text-gray-600">No photos available</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {villageImages.map((image, index) => {
+                const delay = index * 90;
+                return (
+                  <div
+                    key={image.id}
+                    className={`group cursor-pointer overflow-hidden rounded-lg shadow-lg relative transition-all duration-300 ease-in-out hover:shadow-2xl hover-bounce ${
+                      mounted ? "entry-bounce" : "opacity-0 translate-y-2"
+                    }`}
+                    onClick={() => openModal(index)}
+                    style={{ animationDelay: `${delay}ms` }}
+                  >
+                    <img
+                      src={image.image_url}
+                      alt={image.alt_text || "Gallery image"}
+                      loading="lazy" // Lazy load optimization
+                      decoding="async"
+                      className="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Modal / Lightbox */}
@@ -248,13 +207,13 @@ const Gallery = () => {
               {/* Image */}
               <div className="flex flex-col items-center">
                 <img
-                  src={villageImages[selectedImageIndex].src}
-                  alt={villageImages[selectedImageIndex].alt}
+                  src={villageImages[selectedImageIndex].image_url}
+                  alt={villageImages[selectedImageIndex].alt_text || "Gallery image"}
                   loading="lazy"
                   decoding="async"
                   className="max-h-[75vh] w-auto object-contain rounded-md"
                 />
-                
+
               </div>
 
               {/* Prev/Next Buttons */}

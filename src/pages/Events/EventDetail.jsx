@@ -1,14 +1,54 @@
+// frontend/src/pages/Events/EventDetail.jsx
+
 import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import PageHeader from '../../components/common/PageHeader'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { mockData } from '../../data/mockData'
+import { supabase } from '../../services/supabaseClient'
 
 function EventDetail() {
   const { id } = useParams()
-  const event = mockData.events.find(e => String(e.id) === id)
+  const [event, setEvent] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  if (!event) {
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', id)
+          .eq('is_published', true)
+          .single()
+
+        if (error) throw error
+        setEvent(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (id) {
+      fetchEvent()
+    }
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="container py-12">
+        <div className="text-center">
+          <div className="text-gray-400 text-6xl mb-4">⏳</div>
+          <h1 className="text-2xl font-bold mb-4">Loading event...</h1>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !event) {
     return (
       <div className="container py-12">
         <div className="text-center">
@@ -24,13 +64,10 @@ function EventDetail() {
 
   const breadcrumbs = [
     { label: 'Events', href: '/events' },
-    { label: event.title.substring(0, 50) + '...', href: null }
+    { label: event.title, href: null }
   ]
 
   const isUpcoming = new Date(event.date) >= new Date()
-  const relatedEvents = mockData.events
-    .filter(e => e.id !== event.id && e.category === event.category)
-    .slice(0, 3)
 
   return (
     <div>
@@ -43,27 +80,36 @@ function EventDetail() {
               <div className="p-8">
                 {/* Event Header */}
                 <div className="mb-6">
+                  {event.image_url && (
+                    <img src={event.image_url} alt={event.title} className="w-full h-64 object-cover rounded-md mb-6" />
+                  )}
                   <div className="flex items-center gap-3 mb-4">
                     <span className={`text-sm px-3 py-1 rounded-full capitalize ${
-                      isUpcoming 
-                        ? 'bg-green-100 text-green-800' 
+                      isUpcoming
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {event.category}
+                      {event.category || 'Event'}
                     </span>
                     <span className={`text-sm px-3 py-1 rounded-full ${
-                      isUpcoming 
-                        ? 'bg-blue-100 text-blue-800' 
+                      isUpcoming
+                        ? 'bg-blue-100 text-blue-800'
                         : 'bg-gray-100 text-gray-600'
                     }`}>
                       {isUpcoming ? 'Upcoming' : 'Completed'}
                     </span>
                   </div>
-                  
+
                   <h1 className="text-3xl font-bold mb-4">
                     {event.title}
                   </h1>
-                  
+
+                  {event.subtitle && (
+                    <h2 className="text-xl text-gray-600 mb-4">
+                      {event.subtitle}
+                    </h2>
+                  )}
+
                   <p className="text-xl text-gray-600 mb-6">
                     {event.description}
                   </p>
@@ -112,7 +158,7 @@ function EventDetail() {
 
                 {/* Event Content */}
                 <div className="prose max-w-none">
-                  {event.content.split('\n').map((paragraph, index) => (
+                  {(event.content || event.description).split('\n').map((paragraph, index) => (
                     <p key={index} className="mb-4">
                       {paragraph}
                     </p>
@@ -151,29 +197,7 @@ function EventDetail() {
 
           {/* Sidebar */}
           <aside className="space-y-6">
-            {/* Related Events */}
-            {relatedEvents.length > 0 && (
-              <Card>
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Related Events</h3>
-                  <div className="space-y-4">
-                    {relatedEvents.map((related) => (
-                      <div key={related.id}>
-                        <Link 
-                          to={`/events/${related.id}`}
-                          className="block hover:text-primary transition-colors"
-                        >
-                          <h4 className="font-medium text-sm line-clamp-2 mb-1">
-                            {related.title}
-                          </h4>
-                          <p className="text-xs text-gray-500">{related.date}</p>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            )}
+            {/* Related Events - TODO: Implement when we have more events */}
 
             {/* Event Categories */}
             <Card>
