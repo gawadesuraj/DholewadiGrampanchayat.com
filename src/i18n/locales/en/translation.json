@@ -1,0 +1,52 @@
+{
+  "header": {
+    "siteName": "Panchayat Samiti Shirala",
+    "siteNameMarathi": "Panchayat Samiti Shirala",
+    "location": "Ta. Shirala, Dist. Sangli",
+    "skipToContent": "Skip to main content"
+  },
+  "topbar": {
+    "phone": "(02345) 272128",
+    "email": "bdoshirala@gmail.com",
+    "timing": "Mon-Fri: 10:00 AM - 5:30 PM",
+    "language": "English",
+    "screenReader": "Screen Reader"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "departments": "Departments",
+    "services": "Services",
+    "news": "News",
+    "events": "Events",
+    "rti": "RTI",
+    "officers": "Officers",
+    "contact": "Contact",
+    "grievance": "Grievance"
+  },
+  "footer": {
+    "about": "Shirala taluka is known for its Sahyadri mountain ranges and natural beauty. It is famous for rivers Warna and Morana making the region fertile.",
+    "quickLinks": "Quick Links",
+    "government": "Government",
+    "contact": "Contact Us",
+    "address": "Panchayat Samiti Shirala, Taluka Shirala, District Sangli, Maharashtra 415 408",
+    "phone": "(02345) 272128",
+    "email": "bdoshirala@gmail.com",
+    "timing": "Mon - Fri: 10:00 AM - 5:30 PM",
+    "timingNote": "Sat & Sun: Closed",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "accessibility": "Accessibility"
+  },
+  "aria": {
+    "callOffice": "Call office phone number",
+    "sendEmail": "Send email to office",
+    "visitFacebook": "Visit our Facebook page",
+    "visitInstagram": "Visit our Instagram page",
+    "visitTwitter": "Visit our Twitter page",
+    "visitYouTube": "Visit our YouTube channel",
+    "mainNavigation": "Main navigation",
+    "mobileMenu": "Mobile navigation menu",
+    "currentPage": "Current page"
+  }
+}
