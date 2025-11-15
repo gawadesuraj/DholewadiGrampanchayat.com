@@ -4,7 +4,6 @@ import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import PageHeader from '../../components/common/PageHeader'
 import Card from '../../components/ui/Card'
-import Button from '../../components/ui/Button'
 import { supabase } from '../../services/supabaseClient'
 
 function EventDetail() {
@@ -165,23 +164,6 @@ function EventDetail() {
                   ))}
                 </div>
 
-                {/* Action Buttons */}
-                {isUpcoming && (
-                  <div className="mt-8 pt-6 border-t">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <Button>
-                        Register for Event
-                      </Button>
-                      <Button variant="outline">
-                        Add to Calendar
-                      </Button>
-                      <Button variant="ghost">
-                        Share Event
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
                 {/* Back Link */}
                 <div className="mt-8 pt-6 border-t">
                   <Link 
@@ -199,24 +181,6 @@ function EventDetail() {
           <aside className="space-y-6">
             {/* Related Events - TODO: Implement when we have more events */}
 
-            {/* Event Categories */}
-            <Card>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Event Categories</h3>
-                <div className="space-y-2">
-                  {['Meeting', 'Health', 'Agriculture', 'Education', 'Development'].map((category) => (
-                    <Link 
-                      key={category}
-                      to={`/events?category=${category.toLowerCase()}`}
-                      className="block text-sm text-gray-600 hover:text-primary transition-colors"
-                    >
-                      {category}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </Card>
-
             {/* Contact Information */}
             <Card>
               <div className="p-6">
@@ -224,15 +188,15 @@ function EventDetail() {
                 <div className="space-y-3 text-sm">
                   <div>
                     <div className="font-medium">Event Management</div>
-                    <div className="text-gray-600">Panchayat Samiti Office</div>
+                    <div className="text-gray-600">Dholewadi GramPanchayat Office</div>
                   </div>
                   <div>
                     <div className="font-medium">Phone</div>
-                    <div className="text-gray-600">(02345) 272128</div>
+                    <div className="text-gray-600">02345-220020</div>
                   </div>
                   <div>
                     <div className="font-medium">Email</div>
-                    <div className="text-gray-600">events@psshirala.gov.in</div>
+                    <div className="text-gray-600">gpdholewadi415408@gmail.com</div>
                   </div>
                 </div>
               </div>
